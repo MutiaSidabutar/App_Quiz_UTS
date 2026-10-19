@@ -2,46 +2,63 @@ import 'package:flutter/material.dart';
 import '../themes/app_theme.dart';
 import '../utils/responsive.dart';
 
-/// Indikator hitung mundur melingkar; berubah merah saat waktu hampir habis.
+/// Sisa waktu kuis (mm:ss); berubah merah saat waktu hampir habis.
 class TimerBadge extends StatelessWidget {
   final int remaining;
   final int total;
 
   const TimerBadge({super.key, required this.remaining, required this.total});
 
+  static String format(int seconds) {
+    final m = (seconds ~/ 60).toString().padLeft(2, '0');
+    final s = (seconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final warning = remaining <= 5;
+    final warning = remaining <= 30;
     final color = warning ? AppTheme.wrong : scheme.primary;
-    final size = context.sp(40);
+    final ringSize = context.sp(20);
 
     return Semantics(
-      label: 'Sisa waktu $remaining detik',
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Stack(
-          fit: StackFit.expand,
+      label: 'Sisa waktu ${format(remaining)}',
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.sp(10),
+          vertical: context.sp(6),
+        ),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(context.sp(20)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            TweenAnimationBuilder<double>(
-              tween: Tween(end: remaining / total),
-              duration: const Duration(milliseconds: 400),
-              builder: (context, value, _) => CircularProgressIndicator(
-                value: value,
-                strokeWidth: context.sp(4),
-                color: color,
-                backgroundColor: color.withValues(alpha: 0.15),
+            SizedBox(
+              width: ringSize,
+              height: ringSize,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: total == 0 ? 0 : remaining / total),
+                duration: const Duration(milliseconds: 400),
+                builder: (context, value, _) => CircularProgressIndicator(
+                  value: value,
+                  strokeWidth: context.sp(3),
+                  color: color,
+                  backgroundColor: color.withValues(alpha: 0.2),
+                ),
               ),
             ),
-            Center(
-              child: Text(
-                '$remaining',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
-              ),
+            SizedBox(width: context.sp(8)),
+            Text(
+              format(remaining),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
             ),
           ],
         ),

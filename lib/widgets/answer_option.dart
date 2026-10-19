@@ -3,7 +3,7 @@ import '../themes/app_theme.dart';
 import '../utils/responsive.dart';
 
 /// Status tampilan sebuah pilihan jawaban.
-enum AnswerStatus { idle, correct, wrong, dimmed }
+enum AnswerStatus { idle, selected, correct, wrong, dimmed }
 
 class AnswerOption extends StatelessWidget {
   final String label; // A, B, C, D
@@ -29,8 +29,9 @@ class AnswerOption extends StatelessWidget {
       AnswerStatus.wrong => AppTheme.wrong,
       _ => scheme.primary,
     };
-    final highlighted =
-        status == AnswerStatus.correct || status == AnswerStatus.wrong;
+    final highlighted = status == AnswerStatus.selected ||
+        status == AnswerStatus.correct ||
+        status == AnswerStatus.wrong;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: context.sp(6)),
@@ -83,9 +84,11 @@ class AnswerOption extends StatelessWidget {
                   ),
                   if (highlighted)
                     Icon(
-                      status == AnswerStatus.correct
-                          ? Icons.check_circle_rounded
-                          : Icons.cancel_rounded,
+                      switch (status) {
+                        AnswerStatus.correct => Icons.check_circle_rounded,
+                        AnswerStatus.wrong => Icons.cancel_rounded,
+                        _ => Icons.radio_button_checked_rounded,
+                      },
                       color: accent,
                       size: context.sp(26),
                     ),

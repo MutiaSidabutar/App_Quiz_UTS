@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
 import '../utils/responsive.dart';
 import '../widgets/answer_option.dart';
-import '../widgets/feedback_banner.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/question_card.dart';
+import '../widgets/question_navigator.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/timer_badge.dart';
 
@@ -20,6 +20,7 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
   late final QuizProvider _quiz;
   bool _dialogOpen = false;
+  bool _navigatedToResult = false;
 
   @override
   void initState() {
@@ -42,21 +43,26 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
     // Timer tidak berjalan saat aplikasi di background.
     if (state == AppLifecycleState.resumed && !_dialogOpen) {
       _quiz.resumeTimer();
-    } else {
+    } else if (state != AppLifecycleState.resumed) {
       _quiz.pauseTimer();
     }
   }
 
-  Future<void> _confirmExit() async {
+  Future<bool?> _showPausedDialog(WidgetBuilder builder) async {
     _quiz.pauseTimer();
     _dialogOpen = true;
-    final exit = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
+    final result = await showDialog<bool>(context: context, builder: builder);
+    _dialogOpen = false;
+    return result;
+  }
+
+  Future<void> _confirmExit() async {
+    final exit = await _showPausedDialog(
+      (ctx) => AlertDialog(
         icon: const Icon(Icons.pause_circle_rounded),
         title: const Text('Jeda kuis?'),
         content: const Text(
-          'Progres kamu tersimpan. Kamu bisa melanjutkannya dari halaman beranda.',
+          'Jawabanmu tersimpan. Kamu bisa melanjutkannya dari halaman beranda.',
         ),
         actions: [
           TextButton(
@@ -70,7 +76,6 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
         ],
       ),
     );
-    _dialogOpen = false;
     if (!mounted) return;
     if (exit == true) {
       Navigator.pop(context);
@@ -79,15 +84,55 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _next() {
-    final last = _quiz.isLastQuestion;
-    _quiz.nextQuestion();
-    if (last) Navigator.pushReplacementNamed(context, '/result');
+  Future<void> _confirmSubmit() async {
+    final unanswered = _quiz.unansweredCount;
+    final submit = await _showPausedDialog(
+      (ctx) => AlertDialog(
+        icon: const Icon(Icons.assignment_turned_in_rounded),
+        title: const Text('Kumpulkan jawaban?'),
+        content: Text(
+          unanswered == 0
+              ? 'Semua soal sudah dijawab. Jawaban tidak dapat diubah setelah dikumpulkan.'
+              : 'Masih ada $unanswered soal yang belum dijawab dan akan dianggap salah.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Periksa lagi'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Kumpulkan'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (submit == true) {
+      _quiz.submitQuiz();
+    } else {
+      _quiz.resumeTimer();
+    }
+  }
+
+  void _goToResult() {
+    if (_navigatedToResult) return;
+    _navigatedToResult = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_quiz.isTimeUp) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Waktu habis! Jawaban dikumpulkan otomatis.')),
+        );
+      }
+      Navigator.pushReplacementNamed(context, '/result');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final p = context.watch<QuizProvider>();
+    if (p.isFinished) _goToResult();
     if (!p.hasQuizInProgress) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -110,10 +155,7 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
             Padding(
               padding: EdgeInsets.only(right: context.sp(12)),
               child: Center(
-                child: TimerBadge(
-                remaining: p.remainingSeconds,
-                  total: QuizProvider.secondsPerQuestion,
-                ),
+                child: TimerBadge(remaining: p.remainingSeconds, total: p.totalSeconds),
               ),
             ),
           ],
@@ -125,27 +167,19 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
                 _ProgressHeader(
                   current: p.currentIndex + 1,
                   total: p.totalQuestions,
-                  score: p.score,
+                  answered: p.answeredCount,
                   color: category.color,
                 ),
                 Expanded(
                   child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
+                    duration: const Duration(milliseconds: 300),
                     // Soal selalu menempel di atas, bukan di tengah layar.
                     layoutBuilder: (current, previous) => Stack(
                       alignment: Alignment.topCenter,
                       children: [...previous, ?current],
                     ),
-                    transitionBuilder: (child, anim) => FadeTransition(
-                      opacity: anim,
-                      child: SlideTransition(
-                        position: Tween(
-                          begin: const Offset(0.08, 0),
-                          end: Offset.zero,
-                        ).animate(anim),
-                        child: child,
-                      ),
-                    ),
+                    transitionBuilder: (child, anim) =>
+                        FadeTransition(opacity: anim, child: child),
                     child: _QuestionBody(key: ValueKey(p.currentIndex)),
                   ),
                 ),
@@ -157,14 +191,31 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
           child: ResponsiveCenter(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: context.sp(12)),
-              child: PrimaryButton(
-                label: !p.isRevealed
-                    ? 'Pilih jawaban'
-                    : (p.isLastQuestion ? 'Lihat Hasil' : 'Soal Berikutnya'),
-                icon: p.isLastQuestion && p.isRevealed
-                    ? Icons.emoji_events_rounded
-                    : Icons.arrow_forward_rounded,
-                onPressed: p.isRevealed ? _next : null,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PrimaryButton(
+                      label: 'Sebelumnya',
+                      icon: Icons.arrow_back_rounded,
+                      outlined: true,
+                      onPressed: p.isFirstQuestion ? null : p.previousQuestion,
+                    ),
+                  ),
+                  SizedBox(width: context.sp(12)),
+                  Expanded(
+                    child: p.isLastQuestion
+                        ? PrimaryButton(
+                            label: 'Kumpulkan',
+                            icon: Icons.send_rounded,
+                            onPressed: _confirmSubmit,
+                          )
+                        : PrimaryButton(
+                            label: 'Berikutnya',
+                            icon: Icons.arrow_forward_rounded,
+                            onPressed: p.nextQuestion,
+                          ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -177,13 +228,13 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
 class _ProgressHeader extends StatelessWidget {
   final int current;
   final int total;
-  final int score;
+  final int answered;
   final Color color;
 
   const _ProgressHeader({
     required this.current,
     required this.total,
-    required this.score,
+    required this.answered,
     required this.color,
   });
 
@@ -196,17 +247,19 @@ class _ProgressHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Soal $current dari $total',
-                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Icon(Icons.star_rounded, color: Colors.amber, size: context.sp(20)),
+              Expanded(
+                child: Text('Soal $current dari $total',
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+              ),
+              Icon(Icons.task_alt_rounded, color: color, size: context.sp(18)),
               SizedBox(width: context.sp(4)),
-              Text('Skor $score', style: text.titleSmall),
+              Text('$answered/$total terjawab', style: text.titleSmall),
             ],
           ),
           SizedBox(height: context.sp(8)),
           TweenAnimationBuilder<double>(
-            tween: Tween(end: current / total),
+            tween: Tween(end: answered / total),
             duration: const Duration(milliseconds: 400),
             builder: (context, value, _) => ClipRRect(
               borderRadius: BorderRadius.circular(context.sp(8)),
@@ -224,7 +277,7 @@ class _ProgressHeader extends StatelessWidget {
   }
 }
 
-/// Isi satu soal: kartu pertanyaan, pilihan jawaban, dan umpan balik.
+/// Isi satu soal: kartu pertanyaan, pilihan jawaban, dan navigator soal.
 class _QuestionBody extends StatelessWidget {
   const _QuestionBody({super.key});
 
@@ -235,6 +288,7 @@ class _QuestionBody extends StatelessWidget {
     final p = context.watch<QuizProvider>();
     final q = p.currentQuestion;
     final category = p.selectedCategory!;
+    final text = Theme.of(context).textTheme;
 
     final question = QuestionCard(
       number: p.currentIndex + 1,
@@ -245,50 +299,54 @@ class _QuestionBody extends StatelessWidget {
 
     final options = Column(
       children: List.generate(q.options.length, (i) {
-        final status = !p.isRevealed
-            ? AnswerStatus.idle
-            : i == q.correctIndex
-                ? AnswerStatus.correct
-                : i == p.selectedAnswer
-                    ? AnswerStatus.wrong
-                    : AnswerStatus.dimmed;
         return AnswerOption(
           label: _labels[i],
           text: q.options[i],
-          status: status,
-          onTap: p.isRevealed
-              ? null
-              : () {
-                  HapticFeedback.selectionClick();
-                  p.selectAnswer(i);
-                },
+          status: p.selectedAnswer == i ? AnswerStatus.selected : AnswerStatus.idle,
+          onTap: () {
+            HapticFeedback.selectionClick();
+            p.selectAnswer(i);
+          },
         );
       }),
     );
 
-    final feedback = p.isRevealed
-        ? Padding(
-            padding: EdgeInsets.only(top: context.sp(12)),
-            child: FeedbackBanner(
-              isCorrect: p.selectedAnswer == q.correctIndex,
-              isTimedOut: p.isTimedOut,
-              correctAnswer: q.correctAnswer,
-              explanation: q.explanation,
+    final navigator = Card(
+      child: Padding(
+        padding: EdgeInsets.all(context.sp(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Daftar soal',
+                style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+            SizedBox(height: context.sp(10)),
+            QuestionNavigator(
+              total: p.totalQuestions,
+              current: p.currentIndex,
+              answers: p.answers,
+              onSelect: p.goToQuestion,
             ),
-          )
-        : const SizedBox.shrink();
+          ],
+        ),
+      ),
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Layar lebar (tablet / web / landscape): pertanyaan di kiri,
-        // pilihan jawaban di kanan.
+        // Layar lebar: pertanyaan + navigator di kiri, pilihan di kanan.
         if (context.useTwoColumns(constraints.maxWidth)) {
           return SingleChildScrollView(
             padding: EdgeInsets.only(bottom: context.sp(16)),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: Column(children: [question, feedback])),
+                Expanded(
+                  child: Column(children: [
+                    question,
+                    SizedBox(height: context.sp(8)),
+                    navigator,
+                  ]),
+                ),
                 SizedBox(width: context.sp(20)),
                 Expanded(child: options),
               ],
@@ -303,7 +361,8 @@ class _QuestionBody extends StatelessWidget {
               question,
               SizedBox(height: context.sp(8)),
               options,
-              feedback,
+              SizedBox(height: context.sp(12)),
+              navigator,
             ],
           ),
         );

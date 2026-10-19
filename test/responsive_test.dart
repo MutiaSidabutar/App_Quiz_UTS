@@ -40,17 +40,18 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(start);
         await tester.pumpAndSettle();
-        await tester.tap(find.byType(AnswerOption).at(1));
-        await tester.pumpAndSettle();
         for (var i = 0; i < 10; i++) {
-          if (i > 0) {
-            await tester.tap(find.byType(AnswerOption).first);
-            await tester.pumpAndSettle();
-          }
-          final next = find.text(i == 9 ? 'Lihat Hasil' : 'Soal Berikutnya');
+          final option = find.byType(AnswerOption).at(i % 4);
+          await tester.ensureVisible(option);
+          await tester.pumpAndSettle();
+          await tester.tap(option);
+          await tester.pumpAndSettle();
+          final next = find.text(i == 9 ? 'Kumpulkan' : 'Berikutnya');
           await tester.tap(next);
           await tester.pumpAndSettle();
         }
+        await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text('Kumpulkan')));
+        await tester.pumpAndSettle();
         final review = find.text('Lihat Pembahasan');
         await tester.ensureVisible(review);
         await tester.pumpAndSettle();

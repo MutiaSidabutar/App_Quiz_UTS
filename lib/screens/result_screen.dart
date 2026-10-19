@@ -8,6 +8,7 @@ import '../widgets/primary_button.dart';
 import '../widgets/responsive_center.dart';
 import '../widgets/score_card.dart';
 import '../widgets/stat_tile.dart';
+import '../widgets/timer_badge.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({super.key});
@@ -103,15 +104,15 @@ class ResultScreen extends StatelessWidget {
               color: AppTheme.wrong,
             ),
             StatTile(
-              icon: Icons.timer_off_rounded,
+              icon: Icons.help_outline_rounded,
               value: '${p.unansweredCount}',
-              label: 'Waktu habis',
+              label: 'Tidak dijawab',
               color: Colors.orange.shade700,
             ),
             StatTile(
-              icon: Icons.speed_rounded,
-              value: '${p.averageSeconds.toStringAsFixed(1)} dtk',
-              label: 'Rata-rata / soal',
+              icon: Icons.timer_rounded,
+              value: TimerBadge.format(p.secondsUsed),
+              label: 'Waktu pengerjaan',
               color: Theme.of(context).colorScheme.primary,
             ),
           ],

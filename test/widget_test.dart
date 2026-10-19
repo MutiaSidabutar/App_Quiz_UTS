@@ -37,18 +37,39 @@ void main() {
     expect(find.text('Mulai Kuis'), findsOneWidget);
   });
 
-  testWidgets('Alur kuis lengkap sampai pembahasan', (tester) async {
+  testWidgets('Jawaban baru dinilai setelah dikumpulkan', (tester) async {
     await _usePhoneScreen(tester);
     await _startScienceQuiz(tester);
 
     expect(find.text('Soal 1 dari 10'), findsOneWidget);
 
-    for (var i = 0; i < 10; i++) {
+    // Memilih jawaban tidak langsung menampilkan benar/salah.
+    await tester.tap(find.byType(AnswerOption).first);
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.check_circle_rounded), findsNothing);
+    expect(find.byIcon(Icons.cancel_rounded), findsNothing);
+
+    // Bisa kembali ke soal sebelumnya dan mengganti jawaban.
+    await tester.tap(find.text('Berikutnya'));
+    await tester.pumpAndSettle();
+    expect(find.text('Soal 2 dari 10'), findsOneWidget);
+    await tester.tap(find.text('Sebelumnya'));
+    await tester.pumpAndSettle();
+    expect(find.text('Soal 1 dari 10'), findsOneWidget);
+    await tester.tap(find.byType(AnswerOption).last);
+    await tester.pumpAndSettle();
+
+    for (var i = 0; i < 9; i++) {
+      await tester.tap(find.text('Berikutnya'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AnswerOption).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(i == 9 ? 'Lihat Hasil' : 'Soal Berikutnya'));
-      await tester.pumpAndSettle();
     }
+    await tester.tap(find.text('Kumpulkan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kumpulkan jawaban?'), findsOneWidget);
+    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text('Kumpulkan')));
+    await tester.pumpAndSettle();
 
     expect(find.text('Hasil Sains'), findsOneWidget);
     await _tapText(tester, 'Lihat Pembahasan');
@@ -56,21 +77,26 @@ void main() {
     expect(find.byType(ReviewTile), findsWidgets);
   });
 
-  testWidgets('Soal terkunci saat waktu habis', (tester) async {
+  testWidgets('Jawaban dikumpulkan otomatis saat waktu habis', (tester) async {
     await _usePhoneScreen(tester);
     await _startScienceQuiz(tester);
 
-    await tester.pump(const Duration(seconds: QuizProvider.secondsPerQuestion + 1));
+    // Jeda & keluar ke Home: progres tetap tersimpan, timer berhenti.
+    await tester.tap(find.byType(AnswerOption).first);
     await tester.pumpAndSettle();
-
-    expect(find.text('Waktu habis!'), findsOneWidget);
-    expect(find.text('Soal Berikutnya'), findsOneWidget);
-
-    // Jeda & keluar ke Home: progres tetap tersimpan.
     await tester.tap(find.byTooltip('Jeda'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Keluar'));
     await tester.pumpAndSettle();
     expect(find.text('Lanjutkan kuis Sains'), findsOneWidget);
+    expect(find.text('1 dari 10 soal terjawab'), findsOneWidget);
+
+    await tester.tap(find.text('Lanjutkan kuis Sains'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: QuizProvider.secondsPerQuestion * 10 + 1));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hasil Sains'), findsOneWidget);
+    expect(find.text('Waktu habis! Jawaban dikumpulkan otomatis.'), findsOneWidget);
   });
 }

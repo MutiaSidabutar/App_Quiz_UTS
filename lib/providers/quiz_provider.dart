@@ -7,22 +7,25 @@ import '../models/question_model.dart';
 
 /// Menyimpan seluruh progres kuis di atas MaterialApp, sehingga
 /// jawaban tidak hilang saat layar dirotasi atau berpindah halaman.
+///
+/// Jawaban baru dinilai setelah kuis dikumpulkan (bukan per soal).
 class QuizProvider extends ChangeNotifier {
+  /// Jatah waktu per soal; total waktu kuis = jumlah soal x nilai ini.
   static const secondsPerQuestion = 20;
 
   String _userName = '';
   QuizCategory? _selectedCategory;
   List<Question> _questions = [];
   List<int?> _answers = [];
-  List<bool> _timedOut = [];
   int _currentIndex = 0;
   bool _started = false;
   bool _finished = false;
+  bool _timeUp = false;
   final Map<String, int> _bestScores = {};
   bool _isNewBest = false;
 
   Timer? _timer;
-  int _remainingSeconds = secondsPerQuestion;
+  int _remainingSeconds = 0;
   int _secondsUsed = 0;
 
   // ---------- Getter ----------
@@ -38,16 +41,15 @@ class QuizProvider extends ChangeNotifier {
 
   bool get isFinished => _finished;
   bool get hasQuizInProgress => _started && !_finished;
+  bool get isFirstQuestion => _currentIndex == 0;
   bool get isLastQuestion => _currentIndex == _questions.length - 1;
 
+  /// Kuis selesai karena waktu habis (dikumpulkan otomatis).
+  bool get isTimeUp => _timeUp;
+
+  int get totalSeconds => _questions.length * secondsPerQuestion;
   int get remainingSeconds => _remainingSeconds;
-  bool get isTimerRunning => _timer != null;
-
-  /// Waktu soal aktif habis sebelum pengguna menjawab.
-  bool get isTimedOut => _timedOut.isNotEmpty && _timedOut[_currentIndex];
-
-  /// Jawaban soal aktif sudah dikunci (benar/salah sudah ditampilkan).
-  bool get isRevealed => selectedAnswer != null || isTimedOut;
+  int get secondsUsed => _secondsUsed;
 
   int get score {
     var total = 0;
@@ -61,10 +63,6 @@ class QuizProvider extends ChangeNotifier {
   int get wrongCount => answeredCount - score;
   int get unansweredCount => _answers.where((a) => a == null).length;
   double get percentage => _questions.isEmpty ? 0 : score / _questions.length;
-
-  /// Rata-rata detik yang dipakai per soal.
-  double get averageSeconds =>
-      _questions.isEmpty ? 0 : _secondsUsed / _questions.length;
 
   int? bestScoreFor(String categoryId) => _bestScores[categoryId];
 
@@ -87,30 +85,37 @@ class QuizProvider extends ChangeNotifier {
     if (category == null) return;
     _questions = [...category.questions]..shuffle();
     _answers = List<int?>.filled(_questions.length, null);
-    _timedOut = List<bool>.filled(_questions.length, false);
     _currentIndex = 0;
     _secondsUsed = 0;
+    _remainingSeconds = totalSeconds;
     _started = true;
     _finished = false;
-    _restartTimer();
-    notifyListeners();
-  }
-
-  void selectAnswer(int index) {
-    if (!hasQuizInProgress || isRevealed) return;
-    _answers[_currentIndex] = index;
+    _timeUp = false;
     _stopTimer();
+    _startTimer();
     notifyListeners();
   }
 
-  void nextQuestion() {
-    if (!hasQuizInProgress || !isRevealed) return;
-    if (isLastQuestion) {
-      _finish();
-    } else {
-      _currentIndex++;
-      _restartTimer();
-    }
+  /// Memilih / mengganti jawaban soal aktif. Belum dinilai.
+  void selectAnswer(int index) {
+    if (!hasQuizInProgress) return;
+    _answers[_currentIndex] = index;
+    notifyListeners();
+  }
+
+  void goToQuestion(int index) {
+    if (!hasQuizInProgress || index < 0 || index >= _questions.length) return;
+    _currentIndex = index;
+    notifyListeners();
+  }
+
+  void nextQuestion() => goToQuestion(_currentIndex + 1);
+  void previousQuestion() => goToQuestion(_currentIndex - 1);
+
+  /// Mengumpulkan jawaban; penilaian dilakukan di sini.
+  void submitQuiz() {
+    if (!hasQuizInProgress) return;
+    _finish();
     notifyListeners();
   }
 
@@ -126,10 +131,10 @@ class QuizProvider extends ChangeNotifier {
     _stopTimer();
     _questions = [];
     _answers = [];
-    _timedOut = [];
     _currentIndex = 0;
     _started = false;
     _finished = false;
+    _timeUp = false;
     notifyListeners();
   }
 
@@ -137,16 +142,14 @@ class QuizProvider extends ChangeNotifier {
   /// Dipanggil saat meninggalkan layar kuis / aplikasi ke background.
   void pauseTimer() => _stopTimer();
 
-  /// Melanjutkan hitung mundur soal aktif bila belum dijawab.
+  /// Melanjutkan hitung mundur bila kuis masih berjalan.
   void resumeTimer() {
-    if (!hasQuizInProgress || isRevealed || _timer != null) return;
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    if (!hasQuizInProgress || _timer != null) return;
+    _startTimer();
     notifyListeners();
   }
 
-  void _restartTimer() {
-    _stopTimer();
-    _remainingSeconds = secondsPerQuestion;
+  void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
   }
 
@@ -155,8 +158,8 @@ class QuizProvider extends ChangeNotifier {
     _secondsUsed++;
     if (_remainingSeconds <= 0) {
       _remainingSeconds = 0;
-      _timedOut[_currentIndex] = true;
-      _stopTimer();
+      _timeUp = true;
+      _finish();
     }
     notifyListeners();
   }

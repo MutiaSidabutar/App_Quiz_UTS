@@ -51,7 +51,7 @@ class ReviewTile extends StatelessWidget {
             _AnswerLine(
               label: 'Jawabanmu',
               value: userAnswer == null
-                  ? 'Tidak dijawab (waktu habis)'
+                  ? 'Tidak dijawab'
                   : question.options[userAnswer!],
               color: color,
             ),
