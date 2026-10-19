@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:app_quiz/main.dart';
 import 'package:app_quiz/providers/theme_provider.dart';
@@ -15,6 +16,8 @@ const sizes = {
 /// Menjalankan alur lengkap di berbagai ukuran layar & tema; test gagal
 /// bila ada overflow atau error layout.
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   for (final dark in [false, true]) {
     for (final e in sizes.entries) {
       final tag = '${e.key}_${dark ? 'dark' : 'light'}';
@@ -59,6 +62,14 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.textContaining('1. ').first);
         await tester.pumpAndSettle();
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        final history = find.text('Lihat Riwayat');
+        await tester.ensureVisible(history);
+        await tester.pumpAndSettle();
+        await tester.tap(history);
+        await tester.pumpAndSettle();
+        expect(find.text('Riwayat Kuis'), findsOneWidget);
         await tester.pageBack();
         await tester.pumpAndSettle();
         await tester.tap(find.text('Kembali ke Beranda').hitTestable().first, warnIfMissed: false);

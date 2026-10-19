@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:app_quiz/main.dart';
 import 'package:app_quiz/providers/quiz_provider.dart';
 import 'package:app_quiz/widgets/answer_option.dart';
+import 'package:app_quiz/widgets/history_tile.dart';
 import 'package:app_quiz/widgets/review_tile.dart';
 
 Future<void> _usePhoneScreen(WidgetTester tester) async {
@@ -28,6 +30,8 @@ Future<void> _startScienceQuiz(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   testWidgets('Home menampilkan kategori dan tombol mulai', (tester) async {
     await _usePhoneScreen(tester);
     await tester.pumpWidget(const MyApp());
@@ -53,7 +57,7 @@ void main() {
     await tester.tap(find.text('Berikutnya'));
     await tester.pumpAndSettle();
     expect(find.text('Soal 2 dari 10'), findsOneWidget);
-    await tester.tap(find.text('Sebelumnya'));
+    await tester.tap(find.byTooltip('Sebelumnya'));
     await tester.pumpAndSettle();
     expect(find.text('Soal 1 dari 10'), findsOneWidget);
     await tester.tap(find.byType(AnswerOption).last);
@@ -98,5 +102,37 @@ void main() {
 
     expect(find.text('Hasil Sains'), findsOneWidget);
     expect(find.text('Waktu habis! Jawaban dikumpulkan otomatis.'), findsOneWidget);
+  });
+
+  testWidgets('Kuis selesai tercatat di riwayat dengan nilai', (tester) async {
+    await _usePhoneScreen(tester);
+    await _startScienceQuiz(tester);
+
+    // Kumpulkan tanpa menjawab: nilai 0, predikat E.
+    for (var i = 0; i < 9; i++) {
+      await tester.tap(find.text('Berikutnya'));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text('Kumpulkan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Masih ada 10 soal yang belum dijawab dan akan dianggap salah.'),
+        findsOneWidget);
+    await tester.tap(
+        find.descendant(of: find.byType(AlertDialog), matching: find.text('Kumpulkan')));
+    await tester.pumpAndSettle();
+    expect(find.text('Predikat E · Sangat Kurang'), findsOneWidget);
+
+    await _tapText(tester, 'Lihat Riwayat');
+    expect(find.text('Riwayat Kuis'), findsOneWidget);
+    expect(find.byType(HistoryTile), findsOneWidget);
+    expect(find.text('Budi'), findsOneWidget);
+
+    // Riwayat tetap ada setelah aplikasi dibuka ulang.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Riwayat'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HistoryTile), findsOneWidget);
   });
 }

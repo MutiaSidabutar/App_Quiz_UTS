@@ -75,7 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quiz App'),
-        actions: const [ThemeToggleButton()],
+        actions: [
+          IconButton(
+            tooltip: 'Riwayat',
+            icon: const Icon(Icons.history_rounded),
+            onPressed: () => Navigator.pushNamed(context, '/history'),
+          ),
+          const ThemeToggleButton(),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -199,7 +206,7 @@ class _CategorySection extends StatelessWidget {
                 return CategoryCard(
                   category: category,
                   isSelected: provider.selectedCategory?.id == category.id,
-                  bestScore: provider.bestScoreFor(category.id),
+                  bestNilai: provider.bestNilaiFor(category.id),
                   onTap: () => provider.selectCategory(category),
                 );
               },

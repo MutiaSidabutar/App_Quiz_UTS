@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/quiz_provider.dart';
 import 'providers/theme_provider.dart';
+import 'screens/history_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/quiz_screen.dart';
 import 'screens/result_screen.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
             '/quiz': (_) => const QuizScreen(),
             '/result': (_) => const ResultScreen(),
             '/review': (_) => const ReviewScreen(),
+            '/history': (_) => const HistoryScreen(),
           },
         ),
       ),

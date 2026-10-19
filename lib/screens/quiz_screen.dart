@@ -193,12 +193,18 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
               padding: EdgeInsets.symmetric(vertical: context.sp(12)),
               child: Row(
                 children: [
-                  Expanded(
-                    child: PrimaryButton(
-                      label: 'Sebelumnya',
-                      icon: Icons.arrow_back_rounded,
-                      outlined: true,
+                  Tooltip(
+                    message: 'Sebelumnya',
+                    child: OutlinedButton(
                       onPressed: p.isFirstQuestion ? null : p.previousQuestion,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: Size.square(context.sp(52)),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(context.sp(14)),
+                        ),
+                      ),
+                      child: Icon(Icons.arrow_back_rounded, size: context.sp(24)),
                     ),
                   ),
                   SizedBox(width: context.sp(12)),

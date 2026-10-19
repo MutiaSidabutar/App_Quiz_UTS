@@ -6,7 +6,7 @@ import '../utils/responsive.dart';
 class CategoryCard extends StatelessWidget {
   final QuizCategory category;
   final bool isSelected;
-  final int? bestScore;
+  final int? bestNilai;
   final VoidCallback onTap;
 
   const CategoryCard({
@@ -14,7 +14,7 @@ class CategoryCard extends StatelessWidget {
     required this.category,
     required this.isSelected,
     required this.onTap,
-    this.bestScore,
+    this.bestNilai,
   });
 
   @override
@@ -79,11 +79,13 @@ class CategoryCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (bestScore != null) ...[
+                        if (bestNilai != null) ...[
                           Icon(Icons.emoji_events_rounded,
                               size: context.sp(16), color: Colors.amber),
                           SizedBox(width: context.sp(2)),
-                          Text('$bestScore', style: text.labelMedium),
+                          Text('$bestNilai',
+                              style: text.labelMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700)),
                         ],
                       ],
                     ),

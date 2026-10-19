@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../data/question_bank.dart';
 import '../models/category_model.dart';
 import '../models/question_model.dart';
+import '../models/quiz_history_model.dart';
+import '../services/history_storage.dart';
 import '../utils/grading.dart';
 
 /// Menyimpan seluruh progres kuis di atas MaterialApp, sehingga
@@ -14,6 +16,15 @@ class QuizProvider extends ChangeNotifier {
   /// Jatah waktu per soal; total waktu kuis = jumlah soal x nilai ini.
   static const secondsPerQuestion = 20;
 
+  QuizProvider({HistoryStorage? storage})
+      : _storage = storage ?? HistoryStorage() {
+    _loadHistory();
+  }
+
+  final HistoryStorage _storage;
+  List<QuizHistory> _history = [];
+  bool _historyLoaded = false;
+
   String _userName = '';
   QuizCategory? _selectedCategory;
   List<Question> _questions = [];
@@ -22,7 +33,6 @@ class QuizProvider extends ChangeNotifier {
   bool _started = false;
   bool _finished = false;
   bool _timeUp = false;
-  final Map<String, int> _bestScores = {};
   bool _isNewBest = false;
 
   Timer? _timer;
@@ -69,10 +79,23 @@ class QuizProvider extends ChangeNotifier {
   int get nilai => calculateNilai(score, _questions.length);
   Grade get grade => Grade.fromNilai(nilai);
 
-  int? bestScoreFor(String categoryId) => _bestScores[categoryId];
+  /// Nilai tertinggi yang pernah diraih di suatu kategori.
+  int? bestNilaiFor(String categoryId) {
+    int? best;
+    for (final h in _history) {
+      if (h.categoryId == categoryId && (best == null || h.nilai > best)) {
+        best = h.nilai;
+      }
+    }
+    return best;
+  }
 
-  /// Skor kuis terakhir memecahkan rekor kategori tersebut.
+  /// Nilai kuis terakhir memecahkan rekor kategori tersebut.
   bool get isNewBest => _isNewBest;
+
+  /// Riwayat kuis, terbaru di atas.
+  List<QuizHistory> get history => List.unmodifiable(_history);
+  bool get isHistoryLoaded => _historyLoaded;
 
   // ---------- Aksi ----------
   void setUserName(String name) {
@@ -127,9 +150,25 @@ class QuizProvider extends ChangeNotifier {
   void _finish() {
     _finished = true;
     _stopTimer();
-    final id = _selectedCategory!.id;
-    _isNewBest = score > (_bestScores[id] ?? -1);
-    if (_isNewBest) _bestScores[id] = score;
+    final category = _selectedCategory!;
+    final previousBest = bestNilaiFor(category.id);
+    _isNewBest = nilai > 0 && (previousBest == null || nilai > previousBest);
+    final now = DateTime.now();
+    _history.insert(
+      0,
+      QuizHistory(
+        id: now.microsecondsSinceEpoch.toString(),
+        userName: _userName,
+        categoryId: category.id,
+        categoryName: category.name,
+        score: score,
+        total: _questions.length,
+        nilai: nilai,
+        durationSeconds: _secondsUsed,
+        date: now,
+      ),
+    );
+    _storage.save(_history);
   }
 
   void resetQuiz() {
@@ -140,6 +179,27 @@ class QuizProvider extends ChangeNotifier {
     _started = false;
     _finished = false;
     _timeUp = false;
+    notifyListeners();
+  }
+
+  // ---------- Riwayat ----------
+  Future<void> _loadHistory() async {
+    final loaded = await _storage.load();
+    // Gabungkan bila ada kuis yang selesai sebelum data selesai dimuat.
+    _history = [..._history, ...loaded];
+    _historyLoaded = true;
+    notifyListeners();
+  }
+
+  void deleteHistory(String id) {
+    _history.removeWhere((h) => h.id == id);
+    _storage.save(_history);
+    notifyListeners();
+  }
+
+  void clearHistory() {
+    _history = [];
+    _storage.save(_history);
     notifyListeners();
   }
 

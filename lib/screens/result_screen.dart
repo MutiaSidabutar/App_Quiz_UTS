@@ -134,6 +134,13 @@ class ResultScreen extends StatelessWidget {
         ),
         SizedBox(height: context.sp(10)),
         PrimaryButton(
+          label: 'Lihat Riwayat',
+          icon: Icons.history_rounded,
+          outlined: true,
+          onPressed: () => Navigator.pushNamed(context, '/history'),
+        ),
+        SizedBox(height: context.sp(10)),
+        PrimaryButton(
           label: 'Kembali ke Beranda',
           icon: Icons.home_rounded,
           outlined: true,
