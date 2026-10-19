@@ -61,12 +61,17 @@ Quiz App adalah aplikasi kuis pilihan ganda berbasis Flutter yang memungkinkan p
 
 ### i. Credit Sumber Aset
 
-| Aset | Sumber |
-|------|--------|
-| Font Poppins | [Google Fonts — Poppins](https://fonts.google.com/specimen/Poppins) |
-| Logo |https://i.pinimg.com/1200x/c9/1f/a3/c91fa32aa73351f1da262d0c3abeb4de.jpg|
-| Gambar ilustrasi | [Sumber gambar, misal: Freepik / Unsplash — cantumkan link] |
-| Referensi kode | [Dokumentasi Flutter](https://docs.flutter.dev), [Provider package](https://pub.dev/packages/provider) |
+### i. Credit Sumber Aset
+
+| Aset | Sumber / Pembuat | Lisensi |
+|------|------------------|---------|
+| Font Poppins (Regular, Medium, SemiBold, Bold) | Indian Type Foundry & Jonny Pinhorn, diunduh dari [Google Fonts](https://fonts.google.com/specimen/Poppins) | SIL Open Font License 1.1 (salinan di `assets/fonts/OFL.txt`) |
+| Material Icons (ikon di seluruh aplikasi) | Google, bawaan Flutter ([fonts.google.com/icons](https://fonts.google.com/icons)) | Apache License 2.0 |
+| Logo stopwatch "QUIZ" dan ilustrasi kategori (laptop, atom, globe, buku, trofi) dalam format SVG  | Milik proyek |
+| Package `provider` (state management) | Remi Rousselet, [pub.dev](https://pub.dev/packages/provider) | MIT |
+| Package `flutter_svg` (menampilkan gambar SVG) | Dan Field / Flutter community, [pub.dev](https://pub.dev/packages/flutter_svg) | MIT |
+| Package `shared_preferences` (menyimpan riwayat) | Flutter Team (Google), [pub.dev](https://pub.dev/packages/shared_preferences) | BSD 3-Clause |
+| Soal & pembahasan kuis | Disusun untuk proyek ini dari pengetahuan umum | — |
 
 ### ii. Screenshot Tiap Page Aplikasi
 
