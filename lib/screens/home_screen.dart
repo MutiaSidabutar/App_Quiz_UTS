@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
+import '../utils/responsive.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/theme_toggle_button.dart';
 
@@ -35,8 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.quiz, size: MediaQuery.of(context).size.width * 0.3),
-            const SizedBox(height: 24),
+            const AppLogo(sizeFactor: 0.35),
+            SizedBox(height: context.sp(24)),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
