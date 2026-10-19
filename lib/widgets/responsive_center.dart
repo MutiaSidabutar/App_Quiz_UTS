@@ -13,6 +13,8 @@ class ResponsiveCenter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
+      // Tinggi mengikuti anak, agar aman dipakai di bottomNavigationBar.
+      heightFactor: 1,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth ?? context.maxContentWidth),
         child: Padding(

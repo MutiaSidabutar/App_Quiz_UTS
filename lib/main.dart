@@ -5,6 +5,7 @@ import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/quiz_screen.dart';
 import 'screens/result_screen.dart';
+import 'screens/review_screen.dart';
 import 'themes/app_theme.dart';
 
 void main() => runApp(const MyApp());
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
             '/': (_) => const HomeScreen(),
             '/quiz': (_) => const QuizScreen(),
             '/result': (_) => const ResultScreen(),
+            '/review': (_) => const ReviewScreen(),
           },
         ),
       ),

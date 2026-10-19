@@ -19,6 +19,7 @@ class QuizProvider extends ChangeNotifier {
   bool _started = false;
   bool _finished = false;
   final Map<String, int> _bestScores = {};
+  bool _isNewBest = false;
 
   Timer? _timer;
   int _remainingSeconds = secondsPerQuestion;
@@ -67,6 +68,9 @@ class QuizProvider extends ChangeNotifier {
 
   int? bestScoreFor(String categoryId) => _bestScores[categoryId];
 
+  /// Skor kuis terakhir memecahkan rekor kategori tersebut.
+  bool get isNewBest => _isNewBest;
+
   // ---------- Aksi ----------
   void setUserName(String name) {
     _userName = name;
@@ -114,7 +118,8 @@ class QuizProvider extends ChangeNotifier {
     _finished = true;
     _stopTimer();
     final id = _selectedCategory!.id;
-    if (score > (_bestScores[id] ?? -1)) _bestScores[id] = score;
+    _isNewBest = score > (_bestScores[id] ?? -1);
+    if (_isNewBest) _bestScores[id] = score;
   }
 
   void resetQuiz() {

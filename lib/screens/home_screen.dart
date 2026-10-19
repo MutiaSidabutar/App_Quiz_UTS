@@ -190,7 +190,9 @@ class _CategorySection extends StatelessWidget {
                 crossAxisCount: columns,
                 mainAxisSpacing: context.sp(12),
                 crossAxisSpacing: context.sp(12),
-                mainAxisExtent: context.sp(200),
+                // Bagian gambar ikut skala layar, bagian teks ikut skala font.
+                mainAxisExtent: context.sp(96) +
+                    MediaQuery.textScalerOf(context).scale(112),
               ),
               itemBuilder: (context, i) {
                 final category = provider.categories[i];
