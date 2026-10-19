@@ -64,7 +64,7 @@ Quiz App adalah aplikasi kuis pilihan ganda berbasis Flutter yang memungkinkan p
 | Aset | Sumber |
 |------|--------|
 | Font Poppins | [Google Fonts — Poppins](https://fonts.google.com/specimen/Poppins) |
-| Ikon | Material Icons (bawaan Flutter) |
+| Logo |https://i.pinimg.com/1200x/c9/1f/a3/c91fa32aa73351f1da262d0c3abeb4de.jpg|
 | Gambar ilustrasi | [Sumber gambar, misal: Freepik / Unsplash — cantumkan link] |
 | Referensi kode | [Dokumentasi Flutter](https://docs.flutter.dev), [Provider package](https://pub.dev/packages/provider) |
 
