@@ -29,6 +29,8 @@ class AppLogo extends StatelessWidget {
             ).createShader(bounds),
             child: Text(
               'QUIZ',
+              // Ukuran sudah relatif terhadap layar, jangan diskalakan ulang.
+              textScaler: TextScaler.noScaling,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: size * 0.32,

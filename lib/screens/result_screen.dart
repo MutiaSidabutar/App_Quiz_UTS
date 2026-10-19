@@ -21,7 +21,7 @@ class ResultScreen extends StatelessWidget {
             ScoreCard(
               userName: p.userName,
               score: p.score,
-              total: p.questions.length,
+              total: p.totalQuestions,
             ),
             const SizedBox(height: 24),
             Padding(

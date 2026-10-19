@@ -10,18 +10,14 @@ class QuizScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<QuizProvider>();
-    if (p.isFinished) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/result');
-      });
-      // Jangan akses currentQuestion saat index sudah melewati batas.
+    if (!p.hasQuizInProgress) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final q = p.currentQuestion;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Soal ${p.currentIndex + 1}/${p.questions.length}'),
+        title: Text('Soal ${p.currentIndex + 1}/${p.totalQuestions}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -44,7 +40,13 @@ class QuizScreen extends StatelessWidget {
             const Spacer(),
             PrimaryButton(
               label: 'Lanjut',
-              onPressed: p.selectedAnswer == null ? null : p.nextQuestion,
+              onPressed: p.selectedAnswer == null
+                  ? null
+                  : () {
+                      final last = p.isLastQuestion;
+                      p.nextQuestion();
+                      if (last) Navigator.pushReplacementNamed(context, '/result');
+                    },
             ),
           ],
         ),
