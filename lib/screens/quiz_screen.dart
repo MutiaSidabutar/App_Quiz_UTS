@@ -109,9 +109,11 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
           actions: [
             Padding(
               padding: EdgeInsets.only(right: context.sp(12)),
-              child: TimerBadge(
+              child: Center(
+                child: TimerBadge(
                 remaining: p.remainingSeconds,
-                total: QuizProvider.secondsPerQuestion,
+                  total: QuizProvider.secondsPerQuestion,
+                ),
               ),
             ),
           ],
@@ -129,6 +131,11 @@ class _QuizScreenState extends State<QuizScreen> with WidgetsBindingObserver {
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 350),
+                    // Soal selalu menempel di atas, bukan di tengah layar.
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.topCenter,
+                      children: [...previous, ?current],
+                    ),
                     transitionBuilder: (child, anim) => FadeTransition(
                       opacity: anim,
                       child: SlideTransition(
@@ -275,7 +282,7 @@ class _QuestionBody extends StatelessWidget {
       builder: (context, constraints) {
         // Layar lebar (tablet / web / landscape): pertanyaan di kiri,
         // pilihan jawaban di kanan.
-        if (constraints.maxWidth >= 700) {
+        if (context.useTwoColumns(constraints.maxWidth)) {
           return SingleChildScrollView(
             padding: EdgeInsets.only(bottom: context.sp(16)),
             child: Row(

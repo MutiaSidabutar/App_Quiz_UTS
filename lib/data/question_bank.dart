@@ -108,7 +108,7 @@ const List<QuizCategory> quizCategories = [
       ),
       Question(
         questionText: 'Rumus kimia air adalah...',
-        options: ['CO₂', 'O₂', 'H₂O', 'NaCl'],
+        options: ['CO2', 'O2', 'H2O', 'NaCl'],
         correctIndex: 2,
         explanation: 'Satu molekul air tersusun dari dua atom hidrogen dan satu atom oksigen.',
       ),
@@ -116,7 +116,7 @@ const List<QuizCategory> quizCategories = [
         questionText: 'Gas yang dihasilkan tumbuhan saat fotosintesis adalah...',
         options: ['Karbon dioksida', 'Nitrogen', 'Oksigen', 'Hidrogen'],
         correctIndex: 2,
-        explanation: 'Fotosintesis mengubah CO₂ dan air menjadi glukosa dengan melepaskan oksigen.',
+        explanation: 'Fotosintesis mengubah CO2 dan air menjadi glukosa dengan melepaskan oksigen.',
       ),
       Question(
         questionText: 'Satuan SI untuk gaya adalah...',

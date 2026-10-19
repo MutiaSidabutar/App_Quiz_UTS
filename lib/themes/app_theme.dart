@@ -12,7 +12,12 @@ class AppTheme {
   static final dark = _build(Brightness.dark);
 
   static ThemeData _build(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+    final scheme = ColorScheme.fromSeed(
+      seedColor: _seed,
+      brightness: brightness,
+      // Pertahankan warna biru cerah seperti logo.
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+    );
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
@@ -20,6 +25,8 @@ class AppTheme {
       scaffoldBackgroundColor: scheme.surface,
       appBarTheme: AppBarTheme(
         centerTitle: true,
+        // Toolbar ikut membesar di tablet/web agar ikon tidak terpotong.
+        toolbarHeight: kToolbarHeight * 1.15,
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
         elevation: 0,

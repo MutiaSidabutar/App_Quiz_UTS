@@ -40,7 +40,13 @@ extension Responsive on BuildContext {
   /// Lebar maksimum konten supaya tidak melebar di tablet / browser.
   double get maxContentWidth => switch (deviceType) {
         DeviceType.mobile => screenWidth,
-        DeviceType.tablet => math.min(screenWidth * 0.85, 720),
-        DeviceType.desktop => 960,
+        DeviceType.tablet =>
+          isLandscape ? screenWidth * 0.94 : math.min(screenWidth * 0.85, 720),
+        DeviceType.desktop => math.min(screenWidth * 0.8, 1100),
       };
+
+  /// Layout dua kolom untuk layar landscape (HP/tablet) atau layar
+  /// sangat lebar (web/desktop); portrait tetap satu kolom.
+  bool useTwoColumns(double availableWidth) =>
+      availableWidth >= 600 && (isLandscape || availableWidth >= 840);
 }

@@ -71,8 +71,14 @@ class CategoryCard extends StatelessWidget {
                         Icon(Icons.help_outline_rounded,
                             size: context.sp(16), color: category.color),
                         SizedBox(width: context.sp(4)),
-                        Text('${category.questions.length} soal', style: text.labelMedium),
-                        const Spacer(),
+                        Expanded(
+                          child: Text(
+                            '${category.questions.length} soal',
+                            style: text.labelMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         if (bestScore != null) ...[
                           Icon(Icons.emoji_events_rounded,
                               size: context.sp(16), color: Colors.amber),

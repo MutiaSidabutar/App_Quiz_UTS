@@ -14,7 +14,7 @@ class TimerBadge extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final warning = remaining <= 5;
     final color = warning ? AppTheme.wrong : scheme.primary;
-    final size = context.sp(46);
+    final size = context.sp(40);
 
     return Semantics(
       label: 'Sisa waktu $remaining detik',

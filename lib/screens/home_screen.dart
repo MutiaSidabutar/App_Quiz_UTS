@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Tablet / web / landscape lebar: dua kolom berdampingan.
-                if (constraints.maxWidth >= 700) {
+                if (context.useTwoColumns(constraints.maxWidth)) {
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

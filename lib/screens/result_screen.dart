@@ -158,7 +158,7 @@ class ResultScreen extends StatelessWidget {
             child: ResponsiveCenter(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  if (constraints.maxWidth >= 700) {
+                  if (context.useTwoColumns(constraints.maxWidth)) {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
