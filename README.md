@@ -75,13 +75,8 @@ Quiz App adalah aplikasi kuis pilihan ganda berbasis Flutter yang memungkinkan p
 
 ### ii. Screenshot Tiap Page Aplikasi
 
-| Home Screen | Quiz Screen | Result Screen |
-|-------------|-------------|---------------|
-| ![Home](screenshots/home.png) | ![Quiz](screenshots/quiz.png) | ![Result](screenshots/result.png) |
+|[https://drive.google.com/drive/folders/1_H3SvMLeNWUsG6RaNrbMHOqXtfabtWar]|
 
-| Dark Mode | Light Mode | Tablet / Web View |
-|-----------|------------|-------------------|
-| ![Dark](screenshots/dark.png) | ![Light](screenshots/light.png) | ![Tablet](screenshots/tablet.png) |
 
 ### iii. Link Mockup / Prototype Aplikasi
 - **Figma / Mockup:** [https://figma.com/...](#) *(isi jika ada; jika tidak, tulis: "-")*
