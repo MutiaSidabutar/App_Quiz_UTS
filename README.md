@@ -75,7 +75,9 @@ Quiz App adalah aplikasi kuis pilihan ganda berbasis Flutter yang memungkinkan p
 
 ### ii. Screenshot Tiap Page Aplikasi
 
-|https://drive.google.com/drive/folders/1_H3SvMLeNWUsG6RaNrbMHOqXtfabtWar|
+Seluruh screenshot halaman aplikasi dapat diakses melalui folder Google Drive berikut:
+
+📁 **[Screenshot Aplikasi Quiz App — Google Drive](https://drive.google.com/drive/folders/1_H3SvMLeNWUsG6RaNrbMHOqXtfabtWar)**
 
 
 ### iii. Link Mockup / Prototype Aplikasi
