@@ -1,58 +1,82 @@
-# App_Quiz_UTS
+# Quiz App — UTS Lab Pemrograman Mobile
 
-Aplikasi kuis interaktif berbasis Flutter dengan 4 kategori (Teknologi, Sains, Geografi, Sejarah), masing-masing berisi 10 soal beserta pembahasan.
+## a. Identitas Mahasiswa
 
-## Fitur
+| Keterangan | Data |
+|------------|------|
+| **Nama** | Mutia Elshaday Sidabutar |
+| **NIM** | 241401133 |
+| **Lab** |  PM 2 |
 
-- **Kategori kuis** dengan ilustrasi dan skor terbaik per kategori
-- **Jawaban dinilai di akhir**: jawaban bisa diganti dan berpindah soal bebas (Sebelumnya/Berikutnya + daftar nomor soal); benar/salah baru terlihat setelah dikumpulkan
-- **Timer total kuis** (20 detik x jumlah soal); jawaban dikumpulkan otomatis saat waktu habis
-- **Jeda & lanjutkan kuis**: progres tetap tersimpan saat kembali ke beranda, layar dirotasi, atau aplikasi ditinggal ke background (timer ikut berhenti)
-- **Nilai 0–100 dan predikat** A (Sangat Baik) s.d. E (Sangat Kurang)
-- **Halaman hasil**: nilai, bintang, statistik (benar, salah, tidak dijawab, waktu pengerjaan), penanda rekor baru
-- **Halaman pembahasan** dengan filter Semua / Benar / Salah
-- **Riwayat kuis**: tersimpan di perangkat (tetap ada setelah aplikasi ditutup), ringkasan rata-rata & nilai tertinggi, filter per kategori, geser untuk menghapus
-- **Mode terang & gelap**
-- **Responsif & adaptif**: satu kolom di HP portrait, dua kolom di landscape, tablet, dan web
+---
 
-## Pemenuhan Persyaratan
+## b. Informasi Aplikasi
 
-| Persyaratan | Implementasi |
-|---|---|
-| StatelessWidget & StatefulWidget | Stateful: `HomeScreen` (input nama), `QuizScreen` (lifecycle timer), `ReviewScreen` & `HistoryScreen` (filter). Stateless: `ResultScreen` dan seluruh widget di `lib/widgets/` |
-| Minimal 2 halaman + navigasi | 5 halaman: Home → Quiz → Result → Review, plus History (named routes di `lib/main.dart`) |
-| Reusable widget di file terpisah | `lib/widgets/`: `PrimaryButton`, `AnswerOption`, `CategoryCard`, `QuestionCard`, `QuestionNavigator`, `TimerBadge`, `ScoreCard`, `GradeBadge`, `StatTile`, `ReviewTile`, `HistoryTile`, `AppLogo`, dll. |
-| Aset gambar/ikon | `assets/images/` (logo & ilustrasi SVG) + Material Icons |
-| Font kustom | Poppins (Regular, Medium, SemiBold, Bold) di `assets/fonts/` |
-| Ukuran UI dinamis | `lib/utils/responsive.dart`: `context.sp()`, `rw()`, `rh()`, breakpoint perangkat, dan skala teks global |
-| State management | `provider`: `QuizProvider` (progres, jawaban, timer, skor) & `ThemeProvider`, dipasang di atas `MaterialApp` |
-| Tanpa database | Soal berupa data lokal di `lib/data/question_bank.dart`; riwayat disimpan di `SharedPreferences` (penyimpanan key-value lokal, bukan database) |
-| Dual-theme (bonus) | `ThemeProvider` + `AppTheme.light` / `AppTheme.dark` |
-| Adaptive & responsive (bonus) | `ResponsiveCenter` + `useTwoColumns()` untuk tablet, landscape, dan web |
+### i. Nama Aplikasi
+**Quiz App** (app_Quiz)
 
-## Struktur Folder
+### ii. Deskripsi Singkat Aplikasi
+Quiz App adalah aplikasi kuis pilihan ganda berbasis Flutter yang memungkinkan pengguna memasukkan nama, menjawab serangkaian pertanyaan, dan meliat pogress akhir serta mengerjakan berdasarkan waktu. Aplikasi menerapkan state management menggunakan Provider sehingga progres jawaban tetap terjaga saat perangkat dirotasi atau berpindah halaman. Data soal bersifat lokal (dummy), tanpa database.
 
-```
-lib/
-├── data/        # bank soal (dummy)
-├── models/      # Question, QuizCategory
-├── providers/   # QuizProvider, ThemeProvider
-├── screens/     # home, quiz, result, review, history
-├── services/    # penyimpanan riwayat (SharedPreferences)
-├── themes/      # AppTheme
-├── utils/       # helper ukuran responsif
-└── widgets/     # komponen UI reusable
-```
+### iii. Fitur-fitur yang Tersedia
 
-## Menjalankan
+**Fitur Wajib:**
+-Input nama pengguna sebelum memulai kuis
+-Pilihan 4 kategori kuis (Teknologi, Sains, Geografi, Sejarah), masing-masing 10 soal
+-Halaman kuis dengan soal pilihan ganda, progress bar, dan jumlah soal terjawab
+-Halaman hasil yang menampilkan nama, nilai akhir, dan statistik jawaban
+-Navigasi antarhalaman menggunakan Navigator (named routes): Beranda → Kuis → Hasil → Pembahasan, plus halaman Riwayat
+-StatelessWidget dan StatefulWidget sesuai kebutuhan (misalnya HomeScreen dan QuizScreen stateful, ResultScreen stateless)
+-Reusable widget dalam file terpisah di lib/widgets/ (PrimaryButton, AnswerOption, CategoryCard, QuestionCard, QuestionNavigator, TimerBadge, ScoreCard, GradeBadge, StatTile, ReviewTile, HistoryTile, AppLogo, dll.)
+-Aset gambar berupa logo dan ilustrasi kategori (SVG), ditambah ikon Material
+-Font kustom Poppins yang disimpan di aset aplikasi, bukan font bawaan Flutter
+-UI responsif dengan MediaQuery dan LayoutBuilder; ukuran elemen dan teks menyesuaikan layar, tanpa ukuran hardcode
+-State management dengan Provider, sehingga jawaban, posisi soal, dan sisa waktu tidak hilang saat layar dirotasi atau berpindah halaman
+-Data soal dummy lokal
 
-```bash
-flutter pub get
-flutter run          # Android / iOS / desktop
-flutter run -d chrome
-flutter test         # widget test & test responsif
-```
+**Fitur Kuis:**
 
-## Lisensi Aset
+-Jawaban baru dinilai setelah dikumpulkan; selama kuis jawaban bisa diganti
+-Bebas berpindah soal lewat tombol Sebelumnya/Berikutnya atau daftar nomor soal
+-Timer total kuis (20 detik × jumlah soal); jawaban dikumpulkan otomatis saat waktu habis
+-Konfirmasi sebelum mengumpulkan, termasuk peringatan jika masih ada soal kosong
+-Kuis bisa dijeda dan dilanjutkan dari beranda; timer berhenti saat aplikasi ditinggal
+-Urutan soal diacak setiap kali kuis dimulai
 
-Font Poppins dilisensikan di bawah SIL Open Font License (`assets/fonts/OFL.txt`). Logo dan ilustrasi SVG dibuat khusus untuk proyek ini.
+**Fitur Penilaian & Riwayat:**
+
+-Nilai skala 0–100 dengan predikat A (Sangat Baik) sampai E (Sangat Kurang)
+-Statistik hasil: jumlah benar, salah, tidak dijawab, dan waktu pengerjaan
+-Penanda rekor baru dan nilai terbaik per kategori di beranda
+-Halaman pembahasan berisi jawaban pengguna, jawaban benar, dan penjelasan, dengan filter Semua/Benar/Salah
+-Riwayat kuis tersimpan di perangkat (tetap ada setelah aplikasi ditutup), dengan ringkasan rata-rata dan nilai tertinggi, filter per kategori, serta hapus per item atau semua
+
+**Fitur Bonus:**
+- Dual theme (Dark & Light Mode) dengan tombol toggle di AppBar
+- Adaptive & responsive design untuk perangkat tablet dan web view
+
+---
+
+## c. Dokumentasi
+
+### i. Credit Sumber Aset
+
+| Aset | Sumber |
+|------|--------|
+| Font Poppins | [Google Fonts — Poppins](https://fonts.google.com/specimen/Poppins) |
+| Ikon | Material Icons (bawaan Flutter) |
+| Gambar ilustrasi | [Sumber gambar, misal: Freepik / Unsplash — cantumkan link] |
+| Referensi kode | [Dokumentasi Flutter](https://docs.flutter.dev), [Provider package](https://pub.dev/packages/provider) |
+
+### ii. Screenshot Tiap Page Aplikasi
+
+| Home Screen | Quiz Screen | Result Screen |
+|-------------|-------------|---------------|
+| ![Home](screenshots/home.png) | ![Quiz](screenshots/quiz.png) | ![Result](screenshots/result.png) |
+
+| Dark Mode | Light Mode | Tablet / Web View |
+|-----------|------------|-------------------|
+| ![Dark](screenshots/dark.png) | ![Light](screenshots/light.png) | ![Tablet](screenshots/tablet.png) |
+
+### iii. Link Mockup / Prototype Aplikasi
+- **Figma / Mockup:** [https://figma.com/...](#) *(isi jika ada; jika tidak, tulis: "-")*
