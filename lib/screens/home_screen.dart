@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/theme_toggle_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback onToggleTheme;
-  const HomeScreen({super.key, required this.onToggleTheme});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -27,10 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Quiz App'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.dark_mode),
-            onPressed: widget.onToggleTheme,
-          ),
+          const ThemeToggleButton(),
         ],
       ),
       body: Padding(

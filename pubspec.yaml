@@ -1,5 +1,5 @@
 name: app_quiz
-description: "A new Flutter project."
+description: "Aplikasi kuis interaktif berbasis Flutter."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
@@ -11,7 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2          # state management
-  google_fonts: ^6.2.1      # font Poppins via Google Fonts
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
@@ -21,3 +20,14 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700

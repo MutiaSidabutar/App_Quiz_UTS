@@ -1,20 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static final light = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: Colors.indigo,
-    scaffoldBackgroundColor: Colors.white,
-    textTheme: GoogleFonts.poppinsTextTheme(),
-    useMaterial3: true,
-  );
+  static const _seed = Color(0xFF2563EB); // biru, senada dengan logo
+  static const fontFamily = 'Poppins';
 
-  static final dark = ThemeData(
-    brightness: Brightness.dark,
-    primaryColor: Colors.indigoAccent,
-    scaffoldBackgroundColor: const Color(0xFF121212),
-    textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
-    useMaterial3: true,
-  );
+  /// Warna penanda jawaban benar/salah, dipakai di layar kuis & pembahasan.
+  static const correct = Color(0xFF16A34A);
+  static const wrong = Color(0xFFDC2626);
+
+  static final light = _build(Brightness.light);
+  static final dark = _build(Brightness.dark);
+
+  static ThemeData _build(Brightness brightness) {
+    final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      fontFamily: fontFamily,
+      scaffoldBackgroundColor: scheme.surface,
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+          color: scheme.onSurface,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: scheme.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+    );
+  }
 }

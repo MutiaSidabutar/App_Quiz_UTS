@@ -24,13 +24,13 @@ class AnswerOption extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: isSelected
-                  ? Theme.of(context).primaryColor
+                  ? Theme.of(context).colorScheme.primary
                   : Colors.grey.shade400,
               width: 2,
             ),
             borderRadius: BorderRadius.circular(12),
             color: isSelected
-                ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                 : null,
           ),
           child: Text(text),
