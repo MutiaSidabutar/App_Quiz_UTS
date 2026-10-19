@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
 import '../themes/app_theme.dart';
+import '../utils/grading.dart';
 import '../utils/responsive.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/responsive_center.dart';
@@ -13,18 +14,17 @@ import '../widgets/timer_badge.dart';
 class ResultScreen extends StatelessWidget {
   const ResultScreen({super.key});
 
-  static ({String title, String message, int stars}) _grade(double ratio) {
-    if (ratio >= 0.9) {
-      return (title: 'Luar biasa!', message: 'Kamu menguasai materi ini.', stars: 3);
-    }
-    if (ratio >= 0.7) {
-      return (title: 'Hebat!', message: 'Sedikit lagi menuju sempurna.', stars: 2);
-    }
-    if (ratio >= 0.5) {
-      return (title: 'Lumayan!', message: 'Pelajari pembahasan untuk hasil lebih baik.', stars: 1);
-    }
-    return (title: 'Tetap semangat!', message: 'Coba lagi, kamu pasti bisa.', stars: 0);
-  }
+  static ({String title, String message, int stars}) _message(Grade grade) =>
+      switch (grade) {
+        Grade.a => (title: 'Luar biasa!', message: 'Kamu menguasai materi ini.', stars: 3),
+        Grade.b => (title: 'Hebat!', message: 'Sedikit lagi menuju sempurna.', stars: 2),
+        Grade.c => (
+            title: 'Cukup baik!',
+            message: 'Pelajari pembahasan untuk hasil lebih baik.',
+            stars: 1,
+          ),
+        _ => (title: 'Tetap semangat!', message: 'Coba lagi, kamu pasti bisa.', stars: 0),
+      };
 
   void _goHome(BuildContext context) {
     Navigator.popUntil(context, (route) => route.isFirst);
@@ -38,7 +38,7 @@ class ResultScreen extends StatelessWidget {
     if (category == null || p.totalQuestions == 0) {
       return const Scaffold(body: SizedBox.shrink());
     }
-    final grade = _grade(p.percentage);
+    final grade = _message(p.grade);
     final text = Theme.of(context).textTheme;
 
     final summary = Column(
@@ -80,7 +80,6 @@ class ResultScreen extends StatelessWidget {
           userName: p.userName,
           score: p.score,
           total: p.totalQuestions,
-          color: category.color,
         ),
       ],
     );

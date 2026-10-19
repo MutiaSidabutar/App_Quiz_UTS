@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../data/question_bank.dart';
 import '../models/category_model.dart';
 import '../models/question_model.dart';
+import '../utils/grading.dart';
 
 /// Menyimpan seluruh progres kuis di atas MaterialApp, sehingga
 /// jawaban tidak hilang saat layar dirotasi atau berpindah halaman.
@@ -63,6 +64,10 @@ class QuizProvider extends ChangeNotifier {
   int get wrongCount => answeredCount - score;
   int get unansweredCount => _answers.where((a) => a == null).length;
   double get percentage => _questions.isEmpty ? 0 : score / _questions.length;
+
+  /// Nilai akhir skala 0–100 beserta predikatnya.
+  int get nilai => calculateNilai(score, _questions.length);
+  Grade get grade => Grade.fromNilai(nilai);
 
   int? bestScoreFor(String categoryId) => _bestScores[categoryId];
 
