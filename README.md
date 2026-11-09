@@ -81,4 +81,4 @@ Seluruh screenshot halaman aplikasi dapat diakses melalui folder Google Drive be
 
 
 ### iii. Link Mockup / Prototype Aplikasi
-- **Figma / Mockup:** [https://figma.com/...](#) *(isi jika ada; jika tidak, tulis: "-")*
+- **Figma / Mockup:** ( "-")*
